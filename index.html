@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sacred Synthesis: Astrological Software</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 1rem 2rem;
+      background: #f0f5ff;
+      color: #112;
+    }
+    h1, h2, h3 {
+      color: #113366;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #d0e0ff;
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .card h2 {
+      margin-top: 0;
+    }
+    .form-row {
+      margin: 0.5rem 0;
+    }
+    label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.3rem;
+    }
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #aaa;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    .btn {
+      padding: 0.6rem 1.2rem;
+      background: #113366;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: #002244;
+    }
+    .results,
+    .phala,
+    .remedies {
+      border-top: 2px solid #113366;
+      padding-top: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Indic Astrological Software (Sacred Synthesis)</h1>
+
+  <!-- 1. Birth details input card -->
+  <div class="card">
+    <h2>Enter Your Birth Details</h2>
+    <div class="form-row">
+      <label>नाम / Name:</label>
+      <input type="text" id="inputName" placeholder="Your name" />
+    </div>
+    <div class="form-row">
+      <label>तिथि / Date of birth:</label>
+      <input type="date" id="inputDate" />
+    </div>
+    <div class="form-row">
+      <label>काल / Time of birth (HH:MM):</label>
+      <input type="time" id="inputTime" />
+    </div>
+    <div class="form-row">
+      <label>स्थान / Place of birth:</label>
+      <input type="text" id="inputPlace" placeholder="Kurnool, Andhra Pradesh, India" />
+    </div>
+    <div class="form-row">
+      <label>भाषा / Language preference:</label>
+      <select id="inputLanguage">
+        <option value="telugu">తెలుగు (Telugu)</option>
+        <option value="sanskrutam">संस्कृतम् (Sanskrit)</option>
+        <option value="english">English</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <button class="btn" onclick="computeKundli()">Compute Chart, Panchanga, Phala & Remedies</button>
+    </div>
+  </div>
+
+  <!-- 2. Panchanga box -->
+  <div class="card">
+    <h2>शताब्दि‑Panchanga (1000‑year view)</h2>
+    <div class="form-row">
+      <label>Year (for panchanga):</label>
+      <input type="number" id="inputYear" value="2025" min="1000" max="3000" />
+    </div>
+    <div class="form-row">
+      <button class="btn" onclick="loadPanchanga()">Load Panchanga</button>
+    </div>
+    <div id="panchangaOutput" class="results"></div>
+  </div>
+
+  <!-- 3. Chart & Predictions box -->
+  <div class="card">
+    <h2>जन्म‑कुंडली & Predictions (Phalitam)</h2>
+    <div id="chartOutput" class="results"></div>
+    <div id="phalaOutput" class="phala"></div>
+  </div>
+
+  <!-- 4. Remedies box -->
+  <div class="card">
+    <h2>परिहार (Exact Remedies)</h2>
+    <div id="remedyOutput" class="remedies"></div>
+  </div>
+
+  <!-- JS: your astro‑logic will go here -->
+  <script>
+    // Example: store typical remedies (you can expand this)
+    const grahaRemedies = {
+      "Sun": {
+        mantra: "Om Suryāya Namaha (108 times, sunrise).",
+        action: "Donate wheat or red cloth on Sundays.",
+        temple: "Visit Surya‑temple or Suryanarayana‑kshetra."
+      },
+      "Moon": {
+        mantra: "Om Somāya Namaha (108 times, Mondays).",
+        action: "Donate milk or rice on Mondays.",
+        temple: "Visit Shiva or Chandreshwara‑kshetra."
+      },
+      "Mars": {
+        mantra: "Om Kram Kreem Kraum Sah Bhumaye Namaha (108 times, Tuesdays).",
+        action: "Donate red lentils or red cloth on Tuesdays.",
+        temple: "Visit Hanuman or Subrahmanya‑kshetra."
+      },
+      "Saturn": {
+        mantra: "Om Sham Shanaishcharāya Namaha (108 times, Saturdays).",
+        action: "Donate black sesame or black cloth on Saturdays.",
+        temple: "Visit Shani‑mandir or Hanuman‑Guru‑kshetra."
+      }
+    };
+
+    function loadPanchanga() {
+      const year = document.getElementById("inputYear").value;
+      const el = document.getElementById("panchangaOutput");
+      el.innerHTML = `<p>Loading Panchanga for year <strong>${year}</strong>...</p>
+                      <p>[This will be filled with Tithi, Nakshatra, Yoga, Karana once JS logic is added.]</p>`;
+    }
+
+    function computeKundli() {
+      const name   = document.getElementById("inputName").value;
+      const date   = document.getElementById("inputDate").value;
+      const time   = document.getElementById("inputTime").value;
+      const place  = document.getElementById("inputPlace").value;
+      const lang   = document.getElementById("inputLanguage").value;
+
+      if (!date || !time) {
+        alert("Please enter date and time of birth.");
+        return;
+      }
+
+      // 1) Show chart preview
+      document.getElementById("chartOutput").innerHTML = `
+        <p><b>Name:</b> ${name || "Not specified"}</p>
+        <p><b>Date:</b> ${date}</p>
+        <p><b>Time:</b> ${time}</p>
+        <p><b>Place:</b> ${place || "Unknown"}</p>
+        <p><b>Language:</b> ${lang}</p>
+        <p>[Your JS will insert the actual Rasi‑chart here.]</p>
+      `;
+
+      // 2) Show sample predictions (phalitam)
+      document.getElementById("phalaOutput").innerHTML = `
+        <h3>फलितम् / Predictions (Sample)</h3>
+        <p>○ Sun in the 10th house: leadership, authority, and public recognition.</p>
+        <p>○ Moon in the 4th house: emotional comfort, strong home‑life and mother‑blessings.</p>
+        <p>○ Mars in the 3rd house: courage, initiative, and some tendency to conflict.</p>
+        <p>[Your JS will customize this based on the actual chart.]</p>
+      `;
+
+      // 3) Show exact remedies (parihāra)
+      const afflictedPlanets = ["Saturn", "Mars", "Sun"]; // example list
+      let remedyHTML = `<h3>परिहार / Exact Remedies</h3>`;
+
+      for (const graha of afflictedPlanets) {
+        const r = grahaRemedies[graha];
+        if (r) {
+          remedyHTML += `
+            <div style="margin: 0.5rem 0; border-left: 3px solid #113366; padding-left: 0.5rem;">
+              <strong>${graha} Parihāra:</strong><br>
+              Mantra: ${r.mantra}<br>
+              Action: ${r.action}<br>
+              Temple: ${r.temple}<br>
+            </div>
+          `;
+        }
+      }
+
+      document.getElementById("remedyOutput").innerHTML = remedyHTML;
+    }
+  </script>
+
+</body>
+</html>
