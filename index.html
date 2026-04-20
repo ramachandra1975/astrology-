@@ -2,21 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Sacred Synthesis: Astrological Software</title>
+  <title>Sacred Synthesis: Jātaka & Panchanga</title>
   <style>
     body {
       font-family: "Segoe UI", sans-serif;
       margin: 0;
-      padding: 1rem 2rem;
-      background: #f0f5ff;
-      color: #112;
+      padding: 1rem 1.5rem;
+      background: #f0f7ff;
+      color: #112233;
     }
     h1, h2, h3 {
-      color: #113366;
+      color: #002266;
     }
     .card {
       background: #fff;
-      border: 1px solid #d0e0ff;
+      border: 1px solid #c0d8ff;
       border-radius: 8px;
       padding: 1rem 1.5rem;
       margin-bottom: 1.5rem;
@@ -46,7 +46,7 @@
     }
     .btn {
       padding: 0.6rem 1.2rem;
-      background: #113366;
+      background: #002266;
       color: #fff;
       border: none;
       border-radius: 4px;
@@ -54,21 +54,26 @@
       cursor: pointer;
     }
     .btn:hover {
-      background: #002244;
+      background: #001535;
     }
-    .results,
-    .phala,
-    .remedies {
-      border-top: 2px solid #113366;
+    .results, .phala, .remedies, .chakra, .events, .tithi {
+      border-top: 2px solid #002266;
       padding-top: 0.8rem;
+    }
+    .chakra-canvas {
+      text-align: center;
+      padding: 1rem;
+      background: #f9f9f9;
+      border-radius: 6px;
+      font-family: monospace;
     }
   </style>
 </head>
 <body>
 
-  <h1>Indic Astrological Software (Sacred Synthesis)</h1>
+  <h1>Sacred Synthesis: Jātaka, Marriage & Events</h1>
 
-  <!-- 1. Birth details input card -->
+  <!-- 1. Birth input box -->
   <div class="card">
     <h2>Enter Your Birth Details</h2>
     <div class="form-row">
@@ -76,11 +81,11 @@
       <input type="text" id="inputName" placeholder="Your name" />
     </div>
     <div class="form-row">
-      <label>तिथि / Date of birth:</label>
+      <label>तिथि / Date of birth (YYYY-MM-DD):</label>
       <input type="date" id="inputDate" />
     </div>
     <div class="form-row">
-      <label>काल / Time of birth (HH:MM):</label>
+      <label>काल / Time of birth:</label>
       <input type="time" id="inputTime" />
     </div>
     <div class="form-row">
@@ -88,124 +93,184 @@
       <input type="text" id="inputPlace" placeholder="Kurnool, Andhra Pradesh, India" />
     </div>
     <div class="form-row">
-      <label>भाषा / Language preference:</label>
+      <label>भाषा / Language for results:</label>
       <select id="inputLanguage">
-        <option value="telugu">తెలుగు (Telugu)</option>
-        <option value="sanskrutam">संस्कृतम् (Sanskrit)</option>
         <option value="english">English</option>
+        <option value="hindi">हिंदी</option>
+        <option value="telugu">తెలుగు</option>
+        <option value="sanskrit">संस्कृतम्</option>
       </select>
     </div>
     <div class="form-row">
-      <button class="btn" onclick="computeKundli()">Compute Chart, Panchanga, Phala & Remedies</button>
+      <button class="btn" onclick="computeJataka()">Compute Jātaka, Events & Tithi</button>
     </div>
   </div>
 
-  <!-- 2. Panchanga box -->
+  <!-- 2. Jātaka‑chakra (chart) box -->
   <div class="card">
-    <h2>शताब्दि‑Panchanga (1000‑year view)</h2>
-    <div class="form-row">
-      <label>Year (for panchanga):</label>
-      <input type="number" id="inputYear" value="2025" min="1000" max="3000" />
+    <h2>जन्म‑कुंडली / Jātaka‑chakra (Example)</h2>
+    <div id="chakraOutput" class="chakra chakra-canvas">
+      [Your JS will draw the Rāśi‑Paṭa (South / North style) here.]
     </div>
-    <div class="form-row">
-      <button class="btn" onclick="loadPanchanga()">Load Panchanga</button>
-    </div>
-    <div id="panchangaOutput" class="results"></div>
   </div>
 
-  <!-- 3. Chart & Predictions box -->
+  <!-- 3. Exact dates of past & future events (marriage, jobs, etc.) -->
   <div class="card">
-    <h2>जन्म‑कुंडली & Predictions (Phalitam)</h2>
-    <div id="chartOutput" class="results"></div>
+    <h2>Major Life Events (past & future)</h2>
+    <div id="eventsOutput" class="events">
+      <p>Sample: Your birth chart will be used to compute past events (e.g., studies, job, marriage) and future events.</p>
+    </div>
+  </div>
+
+  <!-- 4. Tithi in selected language -->
+  <div class="card">
+    <h2>Calculate Tithi (Moon‑day)</h2>
+    <div class="form-row">
+      <label>Choose date for Tithi:</label>
+      <input type="date" id="inputTithiDate" />
+    </div>
+    <div class="form-row">
+      <label>Language for Tithi name:</label>
+      <select id="inputTithiLang">
+        <option value="english">English</option>
+        <option value="hindi">हिंदी</option>
+        <option value="telugu">తెలుగు</option>
+        <option value="sanskrit">संस्कृतम्</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <button class="btn" onclick="computeTithi()">Show Tithi</button>
+    </div>
+    <div id="tithiOutput" class="tithi"></div>
+  </div>
+
+  <!-- 5. Predictions (Phalitam) -->
+  <div class="card">
+    <h2>फलितम् / Predictions (Phalitam)</h2>
     <div id="phalaOutput" class="phala"></div>
   </div>
 
-  <!-- 4. Remedies box -->
+  <!-- 6. Remedies box -->
   <div class="card">
-    <h2>परिहार (Exact Remedies)</h2>
+    <h2>परिहार / Exact Remedies</h2>
     <div id="remedyOutput" class="remedies"></div>
   </div>
 
-  <!-- JS: your astro‑logic will go here -->
+  <!-- JS placeholder – your astro‑logic goes here -->
   <script>
-    // Example: store typical remedies (you can expand this)
-    const grahaRemedies = {
-      "Sun": {
-        mantra: "Om Suryāya Namaha (108 times, sunrise).",
-        action: "Donate wheat or red cloth on Sundays.",
-        temple: "Visit Surya‑temple or Suryanarayana‑kshetra."
+    // Example Tithi map in many languages (you can extend)
+    const tithiNames = {
+      "Shukla Pratipada": {
+        english: "Pratipada (Shukla)",
+        hindi: "प्रतिपदा (शुक्ल)",
+        telugu: "ప్రతిపద (శుక్ల)",
+        sanskrit: "प्रतिपदा (शुक्ल)"
       },
-      "Moon": {
-        mantra: "Om Somāya Namaha (108 times, Mondays).",
-        action: "Donate milk or rice on Mondays.",
-        temple: "Visit Shiva or Chandreshwara‑kshetra."
+      "Shukla Dwitiya": {
+        english: "Dwitiya (Shukla)",
+        hindi: "द्वितीया (शुक्ल)",
+        telugu: "ద్వితీయ (శుక్ల)",
+        sanskrit: "द्वितीया (शुक्ल)"
       },
-      "Mars": {
-        mantra: "Om Kram Kreem Kraum Sah Bhumaye Namaha (108 times, Tuesdays).",
-        action: "Donate red lentils or red cloth on Tuesdays.",
-        temple: "Visit Hanuman or Subrahmanya‑kshetra."
+      "Shukla Tritiya": {
+        english: "Tritiya (Shukla)",
+        hindi: "तृतीया (शुक्ल)",
+        telugu: "తృతీయ (శుక్ల)",
+        sanskrit: "तृतीया (शुक्ल)"
       },
-      "Saturn": {
-        mantra: "Om Sham Shanaishcharāya Namaha (108 times, Saturdays).",
-        action: "Donate black sesame or black cloth on Saturdays.",
-        temple: "Visit Shani‑mandir or Hanuman‑Guru‑kshetra."
-      }
+      // Add more (Shukla Chatuirthi → Poornima, Krishna Paksha same)
     };
 
-    function loadPanchanga() {
-      const year = document.getElementById("inputYear").value;
-      const el = document.getElementById("panchangaOutput");
-      el.innerHTML = `<p>Loading Panchanga for year <strong>${year}</strong>...</p>
-                      <p>[This will be filled with Tithi, Nakshatra, Yoga, Karana once JS logic is added.]</p>`;
+    // Simulate computing Tithi from a JS library (pseudo)
+    function computeTithi() {
+      const date = document.getElementById("inputTithiDate").value;
+      const lang = document.getElementById("inputTithiLang").value;
+
+      if (!date) {
+        alert("Please select a date for Tithi.");
+        return;
+      }
+
+      // In real code, use panchangam.compute(date...) to get actual Tithi name
+      const tithiEnglishName = "Shukla Pratipada"; // <-- replace with real JS call
+
+      const tithiObj = tithiNames[tithiEnglishName] || tithiNames["Shukla Pratipada"];
+
+      const shortName = tithiObj[lang] || tithiObj.english;
+
+      document.getElementById("tithiOutput").innerHTML = `
+        <p><b>Date:</b> ${date}</p>
+        <p><b>Tithi (in ${lang}):</b> ${shortName}</p>
+        <p>[This will be replaced by your JS using an actual Indic Panchangam library.]</p>
+      `;
     }
 
-    function computeKundli() {
-      const name   = document.getElementById("inputName").value;
-      const date   = document.getElementById("inputDate").value;
-      const time   = document.getElementById("inputTime").value;
-      const place  = document.getElementById("inputPlace").value;
-      const lang   = document.getElementById("inputLanguage").value;
+    // Dummy Jataka / marriage / events logic (you will replace)
+    function computeJataka() {
+      const name = document.getElementById("inputName").value;
+      const date = document.getElementById("inputDate").value;
+      const time = document.getElementById("inputTime").value;
+      const place = document.getElementById("inputPlace").value;
+      const lang = document.getElementById("inputLanguage").value;
 
       if (!date || !time) {
         alert("Please enter date and time of birth.");
         return;
       }
 
-      // 1) Show chart preview
-      document.getElementById("chartOutput").innerHTML = `
-        <p><b>Name:</b> ${name || "Not specified"}</p>
-        <p><b>Date:</b> ${date}</p>
-        <p><b>Time:</b> ${time}</p>
-        <p><b>Place:</b> ${place || "Unknown"}</p>
-        <p><b>Language:</b> ${lang}</p>
-        <p>[Your JS will insert the actual Rasi‑chart here.]</p>
+      // 1) Jātaka‑chakra (placeholder image / box)
+      document.getElementById("chakraOutput").innerHTML = `
+        <p style="font-size:0.9rem;">
+          South Indian style:
+          <code style="display: inline-block; text-align: left; margin-top:0.5rem;">
+            12         1<br>
+             11     2<br>
+              10 3<br>
+              9  4<br>
+              8  5<br>
+              7  6<br>
+               1-12 Bhāva
+          </code>
+        </p>
+        <p>[Your JS will draw real Graha‑positions using SVG or Canvas.]</p>
       `;
 
-      // 2) Show sample predictions (phalitam)
+      // 2) Past & future events (marriage, job, etc.)
+      document.getElementById("eventsOutput").innerHTML = `
+        <h3>Approximate Life Events (based on Dasa‑Bhukti)</h3>
+        <p>○ Marriage: likely around 2028–2030 (example date).</p>
+        <p>○ Career‑shift / Job‑change: around 2026–2027.</p>
+        <p>○ Major travel: 2029.</p>
+        <p>[Your JS will compute exact Gregorian dates from Vimśottarī‑dasa and transits.]</p>
+      `;
+
+      // 3) Predictions (Phalitam, language‑dependent)
       document.getElementById("phalaOutput").innerHTML = `
-        <h3>फलितम् / Predictions (Sample)</h3>
-        <p>○ Sun in the 10th house: leadership, authority, and public recognition.</p>
-        <p>○ Moon in the 4th house: emotional comfort, strong home‑life and mother‑blessings.</p>
-        <p>○ Mars in the 3rd house: courage, initiative, and some tendency to conflict.</p>
-        <p>[Your JS will customize this based on the actual chart.]</p>
+        <h3>फलितम् / Predictions (in ${lang})</h3>
+        <p>○ You are likely to be strong‑willed, with a karmic‑leaning towards seva (service).</p>
+        <p>○ Marriage‑bhāva indicates delays but firm stability once married.</p>
+        <p>○ Finance‑bhāva shows improvement after 2030.</p>
+        <p>[Your JS will decode Nakṣatra, Graha‑positions and Dasa‑phala in your chosen language.]</p>
       `;
 
-      // 3) Show exact remedies (parihāra)
-      const afflictedPlanets = ["Saturn", "Mars", "Sun"]; // example list
+      // 4) Remedies box
+      const afflictedPlanets = ["Saturn", "Mars"];
       let remedyHTML = `<h3>परिहार / Exact Remedies</h3>`;
 
       for (const graha of afflictedPlanets) {
-        const r = grahaRemedies[graha];
-        if (r) {
-          remedyHTML += `
-            <div style="margin: 0.5rem 0; border-left: 3px solid #113366; padding-left: 0.5rem;">
-              <strong>${graha} Parihāra:</strong><br>
-              Mantra: ${r.mantra}<br>
-              Action: ${r.action}<br>
-              Temple: ${r.temple}<br>
-            </div>
-          `;
-        }
+        const mantra = {
+          Saturn: "Om Sham Shanaishcharāya Namaha (108 times on Saturdays).",
+          Mars: "Om Kram Kreem Kraum Sah Bhumaye Namaha (108 times on Tuesdays)."
+        }[graha];
+
+        remedyHTML += `
+          <div style="margin:0.5rem 0; border-left:3px solid #002266; padding-left:0.5rem;">
+            <strong>${graha} Parihāra:</strong><br>
+            Mantra: ${mantra}<br>
+            Action: Donate black sesame (Saturn) / red lentils (Mars) on corresponding days.<br>
+            Temple: Shani‑mandir or Hanuman‑Guru‑kshetra (Saturn); Hanuman / Subrahmanya (Mars).
+          </div>
+        `;
       }
 
       document.getElementById("remedyOutput").innerHTML = remedyHTML;
